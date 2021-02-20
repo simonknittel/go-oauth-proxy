@@ -29,5 +29,5 @@ docker run --env-file .env -p 8080:8080 simonknittel/go-oauth-proxy:latest
 [Amazon ECR (Public)](https://gallery.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy)
 
 ```sh
-docker run --env-file .env -p 8080:8080 public.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy:latest`
+docker run --env-file .env -p 8080:8080 public.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy:latest
 ```
