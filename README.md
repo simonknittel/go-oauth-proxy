@@ -14,9 +14,9 @@ _This project is work in progress and generally more like a experiment to me in 
 
 ## Connect your frontend
 
-1. Add your's frontend URL to the `.env` file
-2. On your's frontend interface, point a link to `http://localhost:8080/authorize`
-3. Clicking this link will now redirect your user to GitHub, let them sign in and then redirect to your's frontend URL. GitHub's response including the access token will be passed as base64 encoded query parameter.
+1. The the URL of your frontend to the `.env` file
+2. On the interface of your frontend, point a link to `http://localhost:8080/authorize`
+3. Clicking this link will now redirect your user to GitHub, let them sign in and then redirect them to your frontend. GitHub's response including the access token will be passed as base64 encoded query parameter called `token`.
 
 ## Docker
 
