@@ -18,7 +18,16 @@ _This project is work in progress and generally more like a experiment to me in 
 2. On the interface of your frontend, point a link to `http://localhost:8080/authorize`
 3. Clicking this link will now redirect your user to GitHub, let them sign in and then redirect them to your frontend. GitHub's response including the access token will be passed as base64 encoded query parameter called `token`.
 
-## Docker
+## Run with Docker
 
-1. Build: `docker build -t simonknittel/go-oauth-proxy:latest .`
-2. Run: `docker run --env-file .env -p 8080:8080 simonknittel/go-oauth-proxy:latest`
+[Docker Hub](https://hub.docker.com/r/simonknittel/go-oauth-proxy)
+
+```sh
+docker run --env-file .env -p 8080:8080 simonknittel/go-oauth-proxy:latest
+```
+
+[Amazon ECR (Public)](https://gallery.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy)
+
+```sh
+docker run --env-file .env -p 8080:8080 public.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy:latest`
+```
