@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -10,6 +11,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 const authEndpoint = "https://github.com/login/oauth/authorize"
@@ -52,13 +55,21 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAccessToken(code string, w http.ResponseWriter) {
-	resp, err := http.PostForm(tokenEndpoint, url.Values{
+	 // TODO: Running from within the Dockerfile produces the following error
+	 // Post (...) certificate signed by unknown authority
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+
+	resp, err := client.PostForm(tokenEndpoint, url.Values{
 			"client_id": {os.Getenv("CLIENT_ID")},
 			"client_secret": {os.Getenv("CLIENT_SECRET")},
 			"code": {code}})
 
 	if err != nil {
 		fmt.Println("Error while while requesting the access token.")
+		fmt.Printf("%s\n", err)
 		clearStateCookie(w)
 		w.WriteHeader(500)
 		return
@@ -98,6 +109,8 @@ func randomBase64String(l int) string {
 }
 
 func main() {
+	godotenv.Load()
+
 	http.HandleFunc("/authorize", authorizeHandler)
 	http.HandleFunc("/callback", callbackHandler)
 
