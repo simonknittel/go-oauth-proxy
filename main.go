@@ -22,7 +22,7 @@ const tokenEndpoint = "https://github.com/login/oauth/access_token"
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {
 	state := randomBase64String(16)
 
-	w.Header().Add("Location", fmt.Sprintf("%s?client_id=%s&redirect_url=http://localhost:8080/callback&state=%s", authEndpoint, os.Getenv("CLIENT_ID"), state))
+	w.Header().Add("Location", fmt.Sprintf("%s?client_id=%s&redirect_url=http://localhost:8080/callback&state=%s", authEndpoint, os.Getenv("CLIENT_ID"), state)) // TODO: Introduce env variable for http://localhost:8080
 	w.Header().Add("Set-Cookie", fmt.Sprintf("state=%s; HttpOnly=true", state))
 	w.WriteHeader(307)
 }
@@ -111,9 +111,11 @@ func randomBase64String(l int) string {
 func main() {
 	godotenv.Load()
 
+	// TODO: Fail if not all environmental variables are set
+
 	http.HandleFunc("/authorize", authorizeHandler)
 	http.HandleFunc("/callback", callbackHandler)
 
-	log.Printf("About to listen on port: %s", os.Getenv("PORT"))
+	log.Printf("About to listen on port: %s", os.Getenv("PORT")) // TODO: Use default value for port
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), nil))
 }

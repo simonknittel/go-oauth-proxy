@@ -31,3 +31,8 @@ docker run --env-file .env -p 8080:8080 simonknittel/go-oauth-proxy:latest
 ```sh
 docker run --env-file .env -p 8080:8080 public.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy:latest
 ```
+
+<!-- TODO: Add instructions for GCP Cloud Run -->
+<!-- TODO: Add instructions for GCP Cloud Functions -->
+<!-- TODO: Add instructions for Netlify Functions -->
+<!-- TODO: Add instructions for AWS Lambda -->
