@@ -9,20 +9,17 @@ import (
 	"math"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 const authEndpoint = "https://github.com/login/oauth/authorize"
 const tokenEndpoint = "https://github.com/login/oauth/access_token"
-const frontendEndpoint = "http://localhost:3000"
-
-const clientID = ""
-const clientSecret = ""
 
 // Redirects the user to auth endpoint
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {
 	state := randomBase64String(16)
 
-	w.Header().Add("Location", fmt.Sprintf("%s?client_id=%s&redirect_url=http://localhost:8080/callback&state=%s", authEndpoint, clientID, state))
+	w.Header().Add("Location", fmt.Sprintf("%s?client_id=%s&redirect_url=http://localhost:8080/callback&state=%s", authEndpoint, os.Getenv("CLIENT_ID"), state))
 	w.Header().Add("Set-Cookie", fmt.Sprintf("state=%s; HttpOnly=true", state))
 	w.WriteHeader(307)
 }
@@ -35,7 +32,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	stateCookie, err := r.Cookie("state")
 	if err != nil {
 		fmt.Println("Error while reading the state cookie.")
-		w.Header().Add("Location", fmt.Sprintf("%s?error=invalid_state_cookie", frontendEndpoint))
+		w.Header().Add("Location", fmt.Sprintf("%s?error=invalid_state_cookie", os.Getenv("FRONTEND_ENDPOINT")))
 		clearStateCookie(w)
 		w.WriteHeader(204)
 		return
@@ -44,7 +41,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	returnedState := r.Form.Get("state")
 	if returnedState != stateCookie.Value {
 		fmt.Println("Error while comparing the returned state with the state cookie.")
-		w.Header().Add("Location", fmt.Sprintf("%s?error=states_not_matching", frontendEndpoint))
+		w.Header().Add("Location", fmt.Sprintf("%s?error=states_not_matching", os.Getenv("FRONTEND_ENDPOINT")))
 		clearStateCookie(w)
 		w.WriteHeader(204)
 		return
@@ -56,8 +53,8 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 func getAccessToken(code string, w http.ResponseWriter) {
 	resp, err := http.PostForm(tokenEndpoint, url.Values{
-			"client_id": {clientID},
-			"client_secret": {clientSecret},
+			"client_id": {os.Getenv("CLIENT_ID")},
+			"client_secret": {os.Getenv("CLIENT_SECRET")},
 			"code": {code}})
 
 	if err != nil {
@@ -83,7 +80,7 @@ func getAccessToken(code string, w http.ResponseWriter) {
 func redirectToFrontend(body []byte, w http.ResponseWriter) {
 	base64Body := base64.RawURLEncoding.EncodeToString(body)
 
-	w.Header().Add("Location", fmt.Sprintf("%s?token=%s", frontendEndpoint, base64Body))
+	w.Header().Add("Location", fmt.Sprintf("%s?token=%s", os.Getenv("FRONTEND_ENDPOINT"), base64Body))
 	clearStateCookie(w)
 	w.WriteHeader(307)
 }
@@ -104,5 +101,6 @@ func main() {
 	http.HandleFunc("/authorize", authorizeHandler)
 	http.HandleFunc("/callback", callbackHandler)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf("About to listen on port: %s", os.Getenv("PORT"))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), nil))
 }
