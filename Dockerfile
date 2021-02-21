@@ -22,6 +22,8 @@ COPY go.sum .
 RUN go mod download
 
 # Build
+COPY config ./config
+COPY utils.go .
 COPY main.go .
 RUN go build -o main .
 

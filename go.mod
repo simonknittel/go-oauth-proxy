@@ -1,4 +1,4 @@
-module hello
+module github.com/simonknittel/go-oauth-proxy
 
 go 1.15
 
