@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/rand"
-	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -15,15 +14,19 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const authEndpoint = "https://github.com/login/oauth/authorize"
-const tokenEndpoint = "https://github.com/login/oauth/access_token"
-
 // Redirects the user to auth endpoint
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {
 	state := randomBase64String(16)
 
-	w.Header().Add("Location", fmt.Sprintf("%s?client_id=%s&redirect_url=http://localhost:8080/callback&state=%s", authEndpoint, os.Getenv("CLIENT_ID"), state)) // TODO: Introduce env variable for http://localhost:8080
+	// TODO: Make scope configurable
+	w.Header().Add("Location", fmt.Sprintf("%s?client_id=%s&redirect_url=%s&state=%s",
+		getEnv("GITHUB_AUTH_ENDPOINT", "https://github.com/login/oauth/authorize"),
+		os.Getenv("CLIENT_ID"),
+		getEnv("REDIRECT_URI", "http://localhost:8080/callback"),
+		state))
+
 	w.Header().Add("Set-Cookie", fmt.Sprintf("state=%s; HttpOnly=true", state))
+
 	w.WriteHeader(307)
 }
 
@@ -55,14 +58,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAccessToken(code string, w http.ResponseWriter) {
-	 // TODO: Running from within the Dockerfile produces the following error
-	 // Post (...) certificate signed by unknown authority
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-
-	resp, err := client.PostForm(tokenEndpoint, url.Values{
+	resp, err := http.PostForm(getEnv("GITHUB_TOKEN_ENDPOINT", "https://github.com/login/oauth/token"), url.Values{
 			"client_id": {os.Getenv("CLIENT_ID")},
 			"client_secret": {os.Getenv("CLIENT_SECRET")},
 			"code": {code}})
@@ -91,7 +87,7 @@ func getAccessToken(code string, w http.ResponseWriter) {
 func redirectToFrontend(body []byte, w http.ResponseWriter) {
 	base64Body := base64.RawURLEncoding.EncodeToString(body)
 
-	w.Header().Add("Location", fmt.Sprintf("%s?token=%s", os.Getenv("FRONTEND_ENDPOINT"), base64Body))
+	w.Header().Add("Location", fmt.Sprintf("%s?token=%s", os.Getenv("FRONTEND_ENDPOINT"), base64Body)) // TODO: Not cool. Token should propably not be visible in the URL
 	clearStateCookie(w)
 	w.WriteHeader(307)
 }
@@ -108,14 +104,29 @@ func randomBase64String(l int) string {
 	return str[:l] // strip 1 extra character we get from odd length results
 }
 
+// Source: https://stackoverflow.com/questions/40326540/how-to-assign-default-value-if-env-var-is-empty
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+
+	return fallback
+}
+
 func main() {
 	godotenv.Load()
 
-	// TODO: Fail if not all environmental variables are set
+	if _, ok := os.LookupEnv("CLIENT_ID"); !ok {
+		log.Fatal("CLIENT_ID is missing.")
+	}
 
-	http.HandleFunc("/authorize", authorizeHandler)
-	http.HandleFunc("/callback", callbackHandler)
+	if _, ok := os.LookupEnv("CLIENT_SECRET"); !ok {
+		log.Fatal("CLIENT_SECRET is missing.")
+	}
 
-	log.Printf("About to listen on port: %s", os.Getenv("PORT")) // TODO: Use default value for port
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), nil))
+	http.HandleFunc(getEnv("AUTHORIZE_PATH", "/authorize"), authorizeHandler)
+	http.HandleFunc(getEnv("CALLBACK_PATH", "/callback"), callbackHandler)
+
+	log.Printf("About to listen on port: %s", getEnv("PORT", "8080"))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", getEnv("PORT", "8080")), nil))
 }
