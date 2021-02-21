@@ -15,12 +15,15 @@ import (
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {
 	state := randomBase64String(16)
 
-	w.Header().Add("Location", fmt.Sprintf("%s?client_id=%s&redirect_url=%s&scope=%s&state=%s",
+	params := url.Values{}
+	params.Set("client_id", config.Get("CLIENT_ID"))
+	params.Set("redirect_url", config.Get("REDIRECT_URI"))
+	params.Set("scope", config.Get("SCOPE"))
+	params.Set("state", state)
+
+	w.Header().Add("Location", fmt.Sprintf("%s?%s",
 		config.Get("GITHUB_AUTH_ENDPOINT"),
-		config.Get("CLIENT_ID"),
-		config.Get("REDIRECT_URI"),
-		config.Get("SCOPE"),
-		state))
+		params.Encode()))
 
 	w.Header().Add("Set-Cookie", fmt.Sprintf("state=%s; HttpOnly=true", state))
 
