@@ -43,6 +43,8 @@ func Get(key string) string {
 		return "https://github.com/login/oauth/authorize"
 	case "GITHUB_TOKEN_ENDPOINT":
 		return "https://github.com/login/oauth/token"
+	case "SCOPE":
+		return ""
 	default:
 		fmt.Printf("%s is an unknown config key", key)
 		return ""

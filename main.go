@@ -15,11 +15,11 @@ import (
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {
 	state := randomBase64String(16)
 
-	// TODO: Make scope configurable
-	w.Header().Add("Location", fmt.Sprintf("%s?client_id=%s&redirect_url=%s&state=%s",
+	w.Header().Add("Location", fmt.Sprintf("%s?client_id=%s&redirect_url=%s&scope=%s&state=%s",
 		config.Get("GITHUB_AUTH_ENDPOINT"),
 		config.Get("CLIENT_ID"),
 		config.Get("REDIRECT_URI"),
+		config.Get("SCOPE"),
 		state))
 
 	w.Header().Add("Set-Cookie", fmt.Sprintf("state=%s; HttpOnly=true", state))
@@ -87,10 +87,6 @@ func redirectToFrontend(body []byte, w http.ResponseWriter) {
 	w.Header().Add("Location", fmt.Sprintf("%s?token=%s", config.Get("FRONTEND_ENDPOINT"), base64Body)) // TODO: Not cool. Token should propably not be visible in the URL
 	clearStateCookie(w)
 	w.WriteHeader(307)
-}
-
-func clearStateCookie(w http.ResponseWriter) {
-	w.Header().Add("Set-Cookie", "state=; expires=Thu, 01 Jan 1970 00:00:00 GMT")
 }
 
 func main() {
