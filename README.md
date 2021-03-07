@@ -26,10 +26,10 @@ _This project is work in progress and generally more like a experiment to me in 
 docker run --env-file .env -p 8080:8080 simonknittel/go-oauth-proxy:latest
 ```
 
-[Amazon ECR (Public)](https://gallery.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy)
+[Amazon ECR (Public)](https://gallery.ecr.aws/simonknittel/go-oauth-proxy)
 
 ```sh
-docker run --env-file .env -p 8080:8080 public.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy:latest
+docker run --env-file .env -p 8080:8080 public.ecr.aws/simonknittel/go-oauth-proxy:latest
 ```
 
 <!-- TODO: Add instructions for GCP Cloud Run -->
