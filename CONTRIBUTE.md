@@ -19,11 +19,11 @@ docker push simonknittel/go-oauth-proxy:latest
 
 ## Publish to Amazon ECR (Public)
 
-Link: <https://gallery.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy>
+Link: <https://gallery.ecr.aws/simonknittel/go-oauth-proxy>
 
 <!-- TODO: Mirror README.md on about and usage pages -->
 
 ```sh
-docker tag go-oauth-proxy:latest public.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy:latest
-docker push public.ecr.aws/d2i9h0g7/simonknittel/go-oauth-proxy:latest
+docker tag go-oauth-proxy:latest public.ecr.aws/simonknittel/go-oauth-proxy:latest
+docker push public.ecr.aws/simonknittel/go-oauth-proxy:latest
 ```
