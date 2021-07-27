@@ -7,9 +7,9 @@
       "updateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true,
       "automergeType": "branch",
-      "schedule": [
-        "before 5am on Monday"
-      ]
+      "schedule": [ "before 1am on Monday" ],
+      "timezone": "DE",
+      "prCreation": "not-pending"
     }
   ]
 }
