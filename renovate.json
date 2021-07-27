@@ -8,7 +8,7 @@
       "automerge": true,
       "automergeType": "branch",
       "schedule": [ "before 1am on Monday" ],
-      "timezone": "DE",
+      "timezone": "Europe/Berlin",
       "prCreation": "not-pending"
     }
   ]
