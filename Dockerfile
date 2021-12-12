@@ -1,7 +1,7 @@
 ############################
 # STEP 1 build application
 ############################
-FROM golang:1.17.1-alpine3.13 AS builder
+FROM golang:1.17.3-alpine3.13 AS builder
 
 # Get certificates
 RUN apk update \
